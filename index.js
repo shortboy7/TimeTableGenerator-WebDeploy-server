@@ -1,8 +1,8 @@
 const express = require('express');
 const {getData} = require('./parser')
 const app = express();
+const port = process.env.PORT || 3000;
 
-app.set('port', 3000);
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -14,6 +14,6 @@ app.get('/', (req, res) => {
 	});
 });
 
-app.listen(3000, () =>{
+app.listen(port, () =>{
 	console.log(`Server running at localhost:3000`);
 })
