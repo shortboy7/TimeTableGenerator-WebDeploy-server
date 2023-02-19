@@ -57,6 +57,7 @@ function getData()
 					}else{
 							let courses = [];
 							raw = csvToJson(data);
+							console.log("raw : ", raw);
 							raw.forEach((row) => {
 								id = row['CourseId'].split("-");
 								times = row['LectureTime'].split(",");
