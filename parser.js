@@ -49,6 +49,7 @@ function getData()
 	for (let name of fileNames) {
 		promises.push(
 			new Promise((resolve, reject) => {
+				console.log(dataDir + name);
 				fs.readFile(dataDir+name, 'utf8', (err, data) => {
 					if (err) {
 						reject(err);
