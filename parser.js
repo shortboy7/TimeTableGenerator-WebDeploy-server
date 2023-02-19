@@ -52,6 +52,7 @@ function getData()
 				console.log(dataDir + name);
 				fs.readFile(dataDir+name, 'utf8', (err, data) => {
 					if (err) {
+						console.log(err);
 						reject(err);
 					}else{
 							let courses = [];
