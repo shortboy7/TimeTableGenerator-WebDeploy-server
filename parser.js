@@ -1,6 +1,6 @@
 const { json } = require('express');
 const fs = require('fs');
-const dataDir = '~/app/data'
+const dataDir = './data'
 let fileNames = [
 	'/major/AI_convergence_department.csv',
 	'/major/computer_engineering.csv'
@@ -8,7 +8,7 @@ let fileNames = [
 
 function csvToJson(fileString) {
 	let jsonArray = [];
-	const rows = fileString.split("\r\n");
+	const rows = fileString.split("\n");
 	const header = rows[0].split(",");
 	for(let i = 1 ; i < rows.length; i++) {
 		let obj = {};
