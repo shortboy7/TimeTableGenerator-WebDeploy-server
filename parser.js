@@ -1,6 +1,6 @@
 const { json } = require('express');
 const fs = require('fs');
-const dataDir = './data'
+const dataDir = '~/app/data'
 let fileNames = [
 	'/major/AI_convergence_department.csv',
 	'/major/computer_engineering.csv'
