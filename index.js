@@ -12,9 +12,9 @@ app.get('/', (req, res) => {
 		console.log(result);
 		let jsonData = JSON.stringify(result);
 		console.log(jsonData);
-		res.setHeader("Access-Control-Allow-Origin: *");
-		res.setHeader("Access-Control-Allow-Headers: Content-Type");
-		res.setHeader("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+		res.setHeader("Access-Control-Allow-Origin", "*");
+		res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+		res.setHeader("Access-Control-Allow-Methods","GET, POST, PUT, DELETE");
 		res.send(jsonData);
 	});
 });
