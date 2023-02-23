@@ -38,8 +38,9 @@ function getTime(strs) {
 	let obj = {};
 	obj['day'] = strs.substring(0, 1);
 	time = strs.split("/")[1].split("-");
-	obj['begin'] = time[0].replace(':', '');
-	obj['end'] = time[1].replace(':', '');
+	let [b,e] = [time[0].split(':'), time[1].split(':')];
+	obj['begin'] = Number(b[0]) * 60 + Number(b[1]);
+	obj['end'] = Number(e[0]) * 60 + Number(e[1]);
 	return obj;
 }
 
@@ -59,13 +60,35 @@ function getData()
 							raw = csvToJson(data);
 							console.log("raw : ", raw);
 							raw.forEach((row) => {
-								id = row['CourseId'].split("-");
-								times = row['LectureTime'].split(",");
-								if (times.length == 1)
-									times[1] = times[0];
-								rooms = row['LectureRoom'].split(",");
-								if (rooms.length == 1)
-									rooms[1] = rooms[0];
+								let id = row['CourseId'].split("-");
+								let times = row['LectureTime'].split(",");
+								let rooms = row['LectureRoom'].split(",");
+								let info = [];
+								if (times.length === 1 && rooms.length === 1) {
+									info.push(
+										{
+											'Time' : getTime(times[0]),
+											'Room' : rooms[0]
+										}
+									);
+								}else{
+									if (times.length == 1 && rooms.length != 1)
+										times[1] = times[0];
+									if (rooms.length == 1 && times.length != 1)
+										rooms[1] = rooms[0];
+									info.push(
+										{
+											'Time': getTime(times[0]),
+											'Room': rooms[0]
+										}
+									);
+									info.push(
+										{
+											'Time': getTime(times[1]),
+											'Room': rooms[1]
+										}
+									);
+								}
 								// console.log(times, rooms);
 								courses.push(
 									{
@@ -76,16 +99,7 @@ function getData()
 										},
 										'Name' : row['Name'],
 										'Professor' : row['Professor'],
-										'LectureInfo' :[
-											{
-												'Time': getTime(times[0]),
-												'Room': rooms[0]
-											},
-											{
-												'Time': getTime(times[1]),
-												'Room': rooms[1]
-											}
-										],
+										'LectureInfo' : info,
 										'Credit' : row['Credit']
 									}
 								);
