@@ -5,6 +5,28 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
+app.get('/', (req, res) => {
+	getData().then((readPromises) =>{
+		Promise.allSettled(readPromises).then(data=> {
+			let result =
+			data.reduce((total, item) => {
+				if (item.status === 'fulfilled'){
+					if (total.length == 0)
+						total = item.value;
+					else
+						total = total.concat(item.value);
+					}
+				return total;
+			}, []);
+			let jsonData = JSON.stringify(result);
+			res.setHeader("Access-Control-Allow-Origin", "*");
+			res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+			res.setHeader("Access-Control-Allow-Methods","GET, POST, PUT, DELETE");
+			res.send(jsonData);
+		});
+	});
+});
+
 app.get('/:major', (req, res) => {
 	let major = req.params.major;
 	if (major === 'favicon.ico')
@@ -12,11 +34,10 @@ app.get('/:major', (req, res) => {
 		res.send('');
 		return ;
 	}
-	let promises = getData(major);
+	let promises = getData(major +".csv");
 	Promise.allSettled(promises).then(data=> {
 		let result =
 		data.reduce((total, item) => {
-			console.log(item.value);
 			if (item.status === 'fulfilled'){
 				if (total.length == 0)
 					total = item.value;
@@ -25,17 +46,11 @@ app.get('/:major', (req, res) => {
 				}
 			return total;
 		}, []);
-		// console.log(result);
-		// console.log(result);
 		let jsonData = JSON.stringify(result);
 		res.setHeader("Access-Control-Allow-Origin", "*");
 		res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 		res.setHeader("Access-Control-Allow-Methods","GET, POST, PUT, DELETE");
-		console.log(jsonData);
 		res.send(jsonData);
-		// data.reduce((map, course, index) => {
-		// 	return map.set(fileNames[index], course);
-		// }, new Map());
 	});
 });
 

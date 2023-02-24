@@ -2,7 +2,6 @@ const { json } = require('express');
 const fs = require('fs');
 const dataDir = './data/major/'
 
-let fileNames = [];
 
 function csvToJson(fileString) {
 	let jsonArray = [];
@@ -57,82 +56,84 @@ function getTime(strs) {
 
 function readPromise(filename) {
 	return new Promise((resolve, reject) => {
-		fs.readFile(dataDir+filename+".csv", 'utf8', (err, data) => {
+		fs.readFile(dataDir+filename, 'utf8', (err, data) => {
 			if (err) {
 				console.log(err);
 				reject(err);
-			}else{
-					let courses = [];
-					raw = csvToJson(data);
-					raw.forEach((row) => {
-						let id = row['CourseId'].split("-");
-						let times = row['LectureTime'].split(",");
-						let rooms = row['LectureRoom'].split(",");
-						let info = [];
-						if (times.length === 1 && rooms.length === 1) {
-							info.push(
-								{
-									'Time' : getTime(times[0]),
-									'Room' : rooms[0]
-								}
-							);
-						}else{
-							if (times.length == 1 && rooms.length != 1)
-								times[1] = times[0];
-							if (rooms.length == 1 && times.length != 1)
-								rooms[1] = rooms[0];
-							info.push(
-								{
-									'Time': getTime(times[0]),
-									'Room': rooms[0]
-								}
-							);
-							info.push(
-								{
-									'Time': getTime(times[1]),
-									'Room': rooms[1]
-								}
-							);
-						}
-						// console.log(times, rooms);
-						courses.push(
-							{
-								'Curriculum' : row['Curriculum'],
-								'CourseId' : {
-									'base' : id[0],
-									'id' : id[1]
-								},
-								'Name' : row['Name'],
-								'Professor' : row['Professor'],
-								'LectureInfo' : info,
-								'Credit' : row['Credit']
-							}
-						);
-					}, courses);
-					resolve(courses);
-				}
 			}
-		);
+			let courses = [];
+			raw = csvToJson(data);
+			raw.forEach((row) => {
+				let id = row['CourseId'].split("-");
+				let times = row['LectureTime'].split(",");
+				let rooms = row['LectureRoom'].split(",");
+				let info = [];
+				if (times.length === 1 && rooms.length === 1) {
+					info.push(
+						{
+							'Time' : getTime(times[0]),
+							'Room' : rooms[0]
+						}
+					);
+				}else{
+					if (times.length == 1 && rooms.length != 1)
+						times[1] = times[0];
+					if (rooms.length == 1 && times.length != 1)
+						rooms[1] = rooms[0];
+					info.push(
+						{
+							'Time': getTime(times[0]),
+							'Room': rooms[0]
+						}
+					);
+					info.push(
+						{
+							'Time': getTime(times[1]),
+							'Room': rooms[1]
+						}
+					);
+				}
+				// console.log(times, rooms);
+				courses.push(
+					{
+						'Curriculum' : row['Curriculum'],
+						'CourseId' : {
+							'base' : id[0],
+							'id' : id[1]
+						},
+						'Name' : row['Name'],
+						'Professor' : row['Professor'],
+						'LectureInfo' : info,
+						'Credit' : row['Credit']
+					}
+				);
+			}, courses);
+			resolve(courses);
+		});
 	});
 }
 
-function getData(major)
+function getData(major = undefined)
 {
 	let promises = [];
+	let fileNames = [];
 	if (major == undefined) {
-		fs.readdir(dataDir, (err, files) => {
-			if (err) {
-				console.log(err);
-				throw new Error(err.message);
-			}
-			files.forEach(file=>{
-				if (file.endsWith('csv'))
+		return new Promise((resolve, reject) => {
+			fs.readdir(dataDir, (err, files) => {
+				if (err) {
+					console.log(err);
+					reject(err.message);
+				}
+				files.forEach(file=>{
 					fileNames.push(file);
-			})
+				})
+				console.log(fileNames);
+				for (let name of fileNames) {
+					promises.push(readPromise(name));
+				}
+				resolve(promises);
+			});
 		});
-		for (let name of fileNames) {
-			promises.push(readPromise(name));
-		}
 	}else{
 		promises.push(readPromise(major));
 	}
