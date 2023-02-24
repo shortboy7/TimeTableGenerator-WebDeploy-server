@@ -35,6 +35,11 @@ app.get('/:major', (req, res) => {
 		return ;
 	}
 	let promises = getData(major +".csv");
+	if (promises.length === 0)
+	{
+		res.send('');
+		return ;
+	}
 	Promise.allSettled(promises).then(data=> {
 		let result =
 		data.reduce((total, item) => {

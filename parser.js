@@ -59,7 +59,12 @@ function readPromise(filename) {
 		fs.readFile(dataDir+filename, 'utf8', (err, data) => {
 			if (err) {
 				console.log(err);
-				reject(err);
+				reject(err.message);
+				return ;
+			}
+			if (!data) {
+				reject('no data');
+				return ;
 			}
 			let courses = [];
 			raw = csvToJson(data);
@@ -117,7 +122,7 @@ function getData(major = undefined)
 {
 	let promises = [];
 	let fileNames = [];
-	if (major == undefined) {
+	if (major === undefined) {
 		return new Promise((resolve, reject) => {
 			fs.readdir(dataDir, (err, files) => {
 				if (err) {
