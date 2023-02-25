@@ -8,7 +8,7 @@ app.use(express.json());
 app.get('/', (req, res) => {
 	getData().then((readPromises) =>{
 		Promise.allSettled(readPromises).then(data=> {
-			let result =
+			let map =
 			data.reduce((total, item) => {
 				if (item.status === 'fulfilled'){
 					if (total.length == 0)
@@ -18,6 +18,19 @@ app.get('/', (req, res) => {
 					}
 				return total;
 			}, []);
+			map =
+			map.reduce((map, course) => {
+				const key = course.CourseId.base + '-' + course.CourseId.id;
+				if (!map.has(key)) {
+					return map.set(key, course);
+				}else{
+					return map;
+				}
+			}, new Map());
+			let result = [];
+			map.forEach((value) => {
+				result.push(value);
+			});
 			let jsonData = JSON.stringify(result);
 			res.setHeader("Access-Control-Allow-Origin", "*");
 			res.setHeader("Access-Control-Allow-Headers", "Content-Type");
