@@ -31,6 +31,7 @@ app.get('/:major', (req, res) => {
 	let major = req.params.major;
 	if (major === 'favicon.ico')
 	{
+		res.send('');
 		return ;
 	}
 	let promises = getData(major +".csv");
