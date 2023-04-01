@@ -122,3 +122,5 @@ dist
 package-lock.json
 
 data/backup
+bot/config.json
+.env
