@@ -1,5 +1,6 @@
 const express = require('express');
-const {getData} = require('./parser')
+const {getData} = require('./parser');
+require('dotenv').config({path: '../.env'});
 const app = express();
 const port = process.env.PORT || 3000;
 const LOCAL_ADDRESS = process.env.LOCAL_ADDRESS || '0.0.0.0';
@@ -7,6 +8,7 @@ const LOCAL_ADDRESS = process.env.LOCAL_ADDRESS || '0.0.0.0';
 app.use(express.json());
 
 app.get('/', (req, res) => {
+	console.log('root');
 	getData().then((readPromises) =>{
 		Promise.allSettled(readPromises).then(data=> {
 			let map =
@@ -74,5 +76,5 @@ app.get('/:major', (req, res) => {
 });
 
 app.listen(port, LOCAL_ADDRESS,  () =>{
-	console.log(`Server running at localhost:3000`);
+	console.log(`Server running at localhost:${port}`);
 })

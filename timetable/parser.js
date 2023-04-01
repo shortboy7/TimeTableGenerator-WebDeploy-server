@@ -1,6 +1,6 @@
 const { json } = require('express');
 const fs = require('fs');
-const dataDir = './data/major/'
+const dataDir = './timetable/data/major/'
 
 
 function csvToJson(fileString) {
@@ -98,7 +98,6 @@ function readPromise(filename) {
 						}
 					);
 				}
-				// console.log(times, rooms);
 				courses.push(
 					{
 						'Curriculum' : row['Curriculum'],
@@ -113,6 +112,7 @@ function readPromise(filename) {
 					}
 				);
 			}, courses);
+			console.log(courses);
 			resolve(courses);
 		});
 	});
