@@ -1,5 +1,6 @@
 const {Client, Collection, GatewayIntentBits, IntentsBitField} = require('discord.js');
-const {clientId} = require('./config.json');
+require('dotenv').config({path: '../.env'});
+const clientId = process.env.CLIENT_ID;
 
 const myIntents = new IntentsBitField();
 myIntents.add(

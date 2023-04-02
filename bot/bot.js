@@ -1,9 +1,9 @@
 const {Client, Collection, GatewayIntentBits, IntentsBitField} = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
+require('dotenv').config({path: '../.env'});
 const token = process.env.TOKEN;
 const client = require('./myClient.js');
-require('dotenv').config({path: '../.env'});
 
 client.commands = new Collection();
 
