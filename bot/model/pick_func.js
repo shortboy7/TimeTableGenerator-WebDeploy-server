@@ -1,5 +1,6 @@
 const client = require('../myClient');
-const {clientId, guildId} = require('../config.json');
+const clientId = process.env.CLIENT_ID;
+const guildId = process.env.GUILD_ID;
 
 function pick(channelID){
 	const guild = client.guilds.cache.get(guildId);
