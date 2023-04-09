@@ -123,4 +123,5 @@ package-lock.json
 
 data/backup
 bot/config.json
+timetable/config/db_config.json
 .env
