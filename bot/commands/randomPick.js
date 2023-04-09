@@ -5,7 +5,7 @@ module.exports = {
 	data : new SlashCommandBuilder()
 			.setName('pick')
 			.setDescription('random pick member from the channel'),
-	async execute(interaction) {
-		await pick(interaction);
+	async execute(channelID) {
+		await pick(channelID);
 	}
 };

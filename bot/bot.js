@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 require('dotenv').config({path: '../.env'});
 const token = process.env.TOKEN;
+console.log(token);
 const client = require('./myClient.js');
 
 client.commands = new Collection();
