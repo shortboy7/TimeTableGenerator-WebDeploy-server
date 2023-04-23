@@ -1,5 +1,5 @@
 const mysql = require('mysql');
-const db_config = require('../../config/db_config.json');
+const db_config = require('../config/db_config.json');
 
 const pool = mysql.createPool({
 	host:db_config.host,
@@ -21,7 +21,6 @@ module.exports = {
 				connection.query(sql, params, (err, rows)=>{
 					if (err) {
 						console.log(err);
-						connection.release();
 						reject(err);
 					}
 					connection.release();
