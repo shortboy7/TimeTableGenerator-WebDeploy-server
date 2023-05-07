@@ -5,11 +5,17 @@ require('dotenv').config({path: '../.env'});
 const app = express();
 const port = process.env.PORT || 3000;
 const LOCAL_ADDRESS = process.env.LOCAL_ADDRESS || '0.0.0.0';
+const cors = require('cors');
 
 const courseRouter = require('./domain/course/controller/CourseController');
 
 
 app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+app.use(cors({
+	origin: '*',
+}));
+
 app.use('/course', courseRouter);
 app.get('/', (req, res) => {
 	console.log('root');

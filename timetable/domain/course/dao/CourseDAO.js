@@ -26,7 +26,7 @@ class CourseDAO{
 	 * @param {string} semester
 	 * @returns
 	 */
-	findByMajor(major, year, semester){
+	findByMajorAndYearAndSemester(major, year, semester){
 		let sql = '';
 		sql += this.selectDefaultSQLPart;
 		sql += ' FROM course JOIN class ON course.course_id = class.course_id';
@@ -34,6 +34,17 @@ class CourseDAO{
 		sql += ' JOIN professor ON class.professor_id = professor.professor_id';
 		sql += ' WHERE course.major = ? AND course.year = ? AND course.semester = ?';
 		let params = [major, year, semester];
+		return pool.excuteQueryPromise(sql, params);
+	}
+
+	findByYearAndSemester(year, semester){
+		let sql = '';
+		sql += this.selectDefaultSQLPart;
+		sql += ' FROM course JOIN class ON course.course_id = class.course_id';
+		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.course_id = schedule.course_id';
+		sql += ' JOIN professor ON class.professor_id = professor.professor_id';
+		sql += ' WHERE course.year = ? AND course.semester = ?';
+		let params = [year, semester];
 		return pool.excuteQueryPromise(sql, params);
 	}
 
