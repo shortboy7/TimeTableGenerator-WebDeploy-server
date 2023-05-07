@@ -9,6 +9,9 @@ router.get('/major', async(req, res)=>{
 	let semester = Number(req.query.semester);
 	let year = Number(req.query.year);
 	let result = await courseService.getCourseByMajor(major, year, semester);
+	res.setHeader("Access-Control-Allow-Origin", "*");
+	res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+	res.setHeader("Access-Control-Allow-Methods","GET, POST, PUT, DELETE");
 	res.send(result);
 });
 
