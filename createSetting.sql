@@ -24,7 +24,6 @@ create table course_grade(
   foreign key (course_id) references course(course_id)
 );
 
-
 create table professor(
   professor_id bigint auto_increment not null primary key ,
   name varchar(255) not null,
