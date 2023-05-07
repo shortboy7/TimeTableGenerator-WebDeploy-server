@@ -19,4 +19,10 @@ router.get('/all', async(req, res)=>{
 	res.send(result);
 });
 
+router.get('/curriculum', async(req, res)=>{
+	let curriculum = req.query.curriculum;
+	let result = await courseService.getCourseByCurriculum(curriculum);
+	res.send(result);
+});
+
 module.exports = router;
