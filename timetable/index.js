@@ -81,6 +81,6 @@ app.get('/:major', (req, res) => {
 	res.send('major');
 });
 
-app.listen(port, LOCAL_ADDRESS,  () =>{
+app.listen(port, LOCAL_ADDRESS, () =>{
 	console.log(`Server running at localhost:${port}`);
 })
