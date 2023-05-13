@@ -28,9 +28,9 @@ class CourseService{
 			});
 		});
 	}
-	getCourseByCurriculum(curriculum){
+	getCourseByCurriculum(year, semester, curriculum){
 		return new Promise((resolve, reject)=>{
-			this.courseDao.findByCurriculum(curriculum).then((rows)=>{
+			this.courseDao.findByCurriculum(year, semester, curriculum).then((rows)=>{
 				let dtos = this.courseTransformer.rowsToDTO(rows);
 				resolve(dtos);
 			})

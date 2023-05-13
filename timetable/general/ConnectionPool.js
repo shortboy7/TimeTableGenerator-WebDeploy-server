@@ -10,8 +10,17 @@ const pool = mysql.createPool({
 	connectionLimit:process.env.DB_CONN_LIMIT
 });
 
+// const pool = mysql.createPool({
+// 	host:db_config.host,
+// 	user:db_config.user,
+// 	password:db_config.password,
+// 	database:db_config.database,
+// 	connectionLimit:db_config.connectionLimit
+// });
+
 module.exports = {
 	excuteQueryPromise: function(sql, params) {
+		console.log(process.env.DB_PASSWORD)
 		return new Promise((resolve, reject) => {
 			pool.getConnection((err, connection) => {
 				if (err) {

@@ -13,19 +13,13 @@ const pool = require('../../../general/ConnectionPool');
 class CourseDAO{
 	selectDefaultSQLPart = 'SELECT course.name courseName, course.course_number courseNumber, professor.name professor, class.class_id classId, curriculum, grade, rating, credit, theory, practice, day, start_time, end_time, classroom';
 
-	findByCourseNumberAndYearAndSemester(courseNumber, year, semester){
-		let sql = `SELECT * FROM course WHERE courseNumber = ? AND year = ? AND semester = ?`;
-		let params = [courseNumber, year, semester];
-		return pool.excuteQueryPromise(sql, params);
-	}
-
 	findByMajorAndYearAndSemester(major, year, semester){
 		let sql = '';
 		sql += this.selectDefaultSQLPart;
 		sql += ' FROM course JOIN class ON course.course_id = class.course_id';
 		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.course_id = schedule.course_id';
 		sql += ' JOIN professor ON class.professor_id = professor.professor_id';
-		sql += ' WHERE course.major = ? AND course.year = ? AND course.semester = ?';
+		sql += ' WHERE course.major = ? AND class.year = ? AND class.semester = ?';
 		let params = [major, year, semester];
 		return pool.excuteQueryPromise(sql, params);
 	}
@@ -36,19 +30,19 @@ class CourseDAO{
 		sql += ' FROM course JOIN class ON course.course_id = class.course_id';
 		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.course_id = schedule.course_id';
 		sql += ' JOIN professor ON class.professor_id = professor.professor_id';
-		sql += ' WHERE course.year = ? AND course.semester = ?';
+		sql += ' WHERE class.year = ? AND class.semester = ?';
 		let params = [year, semester];
 		return pool.excuteQueryPromise(sql, params);
 	}
 
-	findByCurriculum(curriculum){
+	findByCurriculum(year, semester, curriculum){
 		let sql = '';
 		sql += this.selectDefaultSQLPart;
 		sql += ' FROM course JOIN class ON course.course_id = class.course_id';
 		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.course_id = schedule.course_id';
 		sql += ' JOIN professor ON class.professor_id = professor.professor_id';
-		sql += ' WHERE curriculum = ?';
-		let params = [curriculum];
+		sql += ' WHERE curriculum = ? AND class.year = ? AND class.semester = ?';
+		let params = [curriculum, year, semester];
 		return pool.excuteQueryPromise(sql, params);
 	}
 
