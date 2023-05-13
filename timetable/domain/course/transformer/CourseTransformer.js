@@ -106,7 +106,10 @@ class CourseTransformer{
 			);
 			m.set(`${row['courseNumber']}-${row['classId']}`, courseDTO);
 		}
-		let result = m.values();
+		let result = [];
+		m.forEach((value, key, map) => {
+			result.push(value);
+		});
 		return result;
 	}
 };

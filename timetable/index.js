@@ -22,9 +22,6 @@ app.use(corsHandler);
 
 app.use('/course', courseRouter);
 
-/**
- * TODO : 강의 정보
- */
 app.listen(port, LOCAL_ADDRESS, () =>{
 	console.log(`Server running at localhost:${port}`);
 })
