@@ -11,7 +11,7 @@ const pool = require('../../../general/ConnectionPool');
  */
 
 class CourseDAO{
-	selectDefaultSQLPart = 'SELECT course.name courseName, course.course_number courseNumber, class.class_id classId, curriculum, grade, rating, credit, theory, practice, day, start_time, end_time, classroom';
+	selectDefaultSQLPart = 'SELECT course.name courseName, course.course_number courseNumber, professor.name professor, class.class_id classId, curriculum, grade, rating, credit, theory, practice, day, start_time, end_time, classroom';
 
 	findByCourseNumberAndYearAndSemester(courseNumber, year, semester){
 		let sql = `SELECT * FROM course WHERE courseNumber = ? AND year = ? AND semester = ?`;
@@ -19,13 +19,6 @@ class CourseDAO{
 		return pool.excuteQueryPromise(sql, params);
 	}
 
-	/**
-	 * 특정 semester, year, major에 해당하는 강의를 가져옴
-	 * @param {string} major
-	 * @param {string} year
-	 * @param {string} semester
-	 * @returns
-	 */
 	findByMajorAndYearAndSemester(major, year, semester){
 		let sql = '';
 		sql += this.selectDefaultSQLPart;

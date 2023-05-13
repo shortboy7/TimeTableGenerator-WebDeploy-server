@@ -12,7 +12,17 @@ class CourseTransformer{
 			return text;
 		}
 	}
-
+	_getDayId(num){
+		switch(num){
+			case 0: return '일';
+			case 1: return '월';
+			case 2: return '화';
+			case 3: return '수';
+			case 4: return '목';
+			case 5: return '금';
+			case 6: return '토';
+		}
+	}
 	_getTime(day, start_time, end_time) {
 		if (day == undefined || day == null || day == "" ||
 		start_time == undefined || start_time == null || start_time == "" ||
@@ -24,7 +34,7 @@ class CourseTransformer{
 			};
 
 		let obj = {};
-		obj['day'] = day;
+		obj['day'] = this._getDayId(day);
 		// console.log(strs.split("/"[1]));
 		let [b,e] = [start_time.split(':'), end_time.split(':')];
 		obj['begin'] = Number(b[0]) * 60 + Number(b[1]);
@@ -73,18 +83,20 @@ class CourseTransformer{
 
 	rowsToDTO(rows){
 		let LecutreInfo = this._getLecture(rows);
-		let result = [];
+		let m = new Map();
 		for (let row of rows){
 			let Id = {
 				'base' : row['courseNumber'],
 				'id' : row['classId']
 			};
+			if (m.has(`${row['courseNumber']}-${row['classId']}`))
+				continue;
 			let Grades = this._getGrades(row['grade']);
 			let courseDTO = new CourseDTO(
 				Grades,
-				row['curriculumn'],
+				row['curriculum'],
 				Id,
-				row['name'],
+				row['courseName'],
 				row['professor'],
 				row['rating'],
 				row['credit'],
@@ -92,8 +104,9 @@ class CourseTransformer{
 				row['practice'],
 				LecutreInfo.get(row['courseNumber'] + '-' + row['classId'])
 			);
-			result.push(courseDTO);
+			m.set(`${row['courseNumber']}-${row['classId']}`, courseDTO);
 		}
+		let result = m.values();
 		return result;
 	}
 };

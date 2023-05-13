@@ -40,5 +40,17 @@ class CourseService{
 			});
 		});
 	}
+	getCourseByInfo(courseName, courseId, professorName) {
+		return new Promise((resolve, reject)=>{
+			this.courseDao.findByInfo(courseName, courseId, professorName).then((rows)=>{
+				let dtos = this.courseTransformer.rowsToDTO(rows);
+				resolve(dtos);
+			})
+			.catch((err)=>{
+				console.log(err);
+				reject(err);
+			});
+		});
+	}
 };
 module.exports = new CourseService();
