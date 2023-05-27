@@ -16,8 +16,8 @@ class CourseDAO{
 	findByMajorAndYearAndSemester(major, year, semester){
 		let sql = '';
 		sql += this.selectDefaultSQLPart;
-		sql += ' FROM course JOIN class ON course.course_id = class.course_id';
-		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.course_id = schedule.course_id';
+		sql += ' FROM course JOIN class ON course.course_number = class.course_number';
+		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.year = schedule.year AND class.semester = schedule.semester AND class.course_number = schedule.course_number';
 		sql += ' JOIN professor ON class.professor_id = professor.professor_id';
 		sql += ' WHERE course.major = ? AND class.year = ? AND class.semester = ?';
 		let params = [major, year, semester];
@@ -27,8 +27,8 @@ class CourseDAO{
 	findByYearAndSemester(year, semester){
 		let sql = '';
 		sql += this.selectDefaultSQLPart;
-		sql += ' FROM course JOIN class ON course.course_id = class.course_id';
-		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.course_id = schedule.course_id';
+		sql += ' FROM course JOIN class ON course.course_number = class.course_number';
+		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.year = schedule.year AND class.semester = schedule.semester AND class.course_number = schedule.course_number';
 		sql += ' JOIN professor ON class.professor_id = professor.professor_id';
 		sql += ' WHERE class.year = ? AND class.semester = ?';
 		let params = [year, semester];
@@ -38,8 +38,8 @@ class CourseDAO{
 	findByCurriculum(year, semester, curriculum){
 		let sql = '';
 		sql += this.selectDefaultSQLPart;
-		sql += ' FROM course JOIN class ON course.course_id = class.course_id';
-		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.course_id = schedule.course_id';
+		sql += ' FROM course JOIN class ON course.course_number = class.course_number';
+		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.year = schedule.year AND class.semester = schedule.semester AND class.course_number = schedule.course_number';
 		sql += ' JOIN professor ON class.professor_id = professor.professor_id';
 		sql += ' WHERE curriculum = ? AND class.year = ? AND class.semester = ?';
 		let params = [curriculum, year, semester];
@@ -49,8 +49,8 @@ class CourseDAO{
 	findByCourseInfo(courseName, courseNumber, professor){
 		let sql = '';
 		sql += this.selectDefaultSQLPart;
-		sql += ' FROM course JOIN class ON course.course_id = class.course_id';
-		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.course_id = schedule.course_id';
+		sql += ' FROM course JOIN class ON course.course_number = class.course_number';
+		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.year = schedule.year AND class.semester = schedule.semester AND class.course_number = schedule.course_number';
 		sql += ' JOIN professor ON class.professor_id = professor.professor_id';
 		sql += ' WHERE course.course_name = ? AND course.course_number = ? AND professor.name = ?';
 		let params = [courseName, courseNumber, professor];

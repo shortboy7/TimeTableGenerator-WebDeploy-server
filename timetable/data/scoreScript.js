@@ -34,6 +34,10 @@ const fs = require('fs');
  * BCNF(0)
  * 4NF(0)
 */
+function leftpad(num) {
+	return Number(num) < 10 ? `0${num}` : `${num}`;
+}
+
 async function enrollRating(filename)
 {
 	const jsonfile = fs.readFileSync(filename, 'utf8');
@@ -41,40 +45,69 @@ async function enrollRating(filename)
 	let dbCourse = new Map();
 
 
-	await pool.excuteQueryPromise(`SELECT * FROM course WHERE year = 2023 AND semester = 1`, [])
+	await pool.excuteQueryPromise(`SELECT * FROM course`, [])
 	.then((rows) => {
 		for (let row of rows) {
-			dbCourse.set(row['course_number'], {
-				id: row['course_id'],
-				course_number: row['course_number'],
-				name: row['name'],
-				credit: row['credit'],
-				department: row['department'],
-				college: row['college'],
-				major: row['major'],
-				grade: row['grade'],
-				practice: row['practice'],
-				theory: row['theory'],
-				curriculum: row['curriculum']
-			});
+			dbCourse.set(row['course_number'], true);
 		}
 	})
 
 	let dbProfessor = new Map();
-	await pool.query('SELECT * from professor')
+	await pool.excuteQueryPromise('SELECT * from professor', [])
 	.then((rows) => {
-		dbProfessor.set(rows['name'], {
-			name: rows['name'],
-			professor_id : rows['professor_id']
-		});
+		for (let row of rows) {
+			dbProfessor.set(row['name'], row['professor_id']);
+		}
 	})
 	.catch(err => {
 		console.log(err);
 	});
 
-	for (let id of ratingFile) {
+	for (let id in ratingFile) {
 		let [courseNumber, class_id] = id.split('-');
-		let
+		let courseID = dbCourse.get(courseNumber);
+		if (courseID === undefined) {
+			// console.log(courseNumber);
+			continue;
+		}
+
+		for (let professorName in ratingFile[id]) {
+			for (let year in ratingFile[id][professorName]) {
+				for (let semester in ratingFile[id][professorName][year]){
+					let info = ratingFile[id][professorName][year][semester];
+					let score = info["Score"];
+					let professorID = dbProfessor.get(professorName);
+
+					// professor가 처음 보는 교수인 경우
+					// if (professorID === undefined) {
+					// 	console.log(professorName);
+					// 	await pool.excuteQueryPromise(`INSERT INTO professor (name) VALUES (?)`, [professorName])
+					// 	await pool.excuteQueryPromise(`SELECT professor_id FROM professor WHERE name = ?`, [professorName])
+					// 	.then((rows) => {
+					// 		professorID = rows[0]['professor_id'];
+					// 		dbProfessor.set(professorName, professorID);
+					// 		// console.log(professorID);
+					// 	});
+					// }
+
+					// course가 처음 보는 과목인 경우
+					// console.log(courseNumber);
+
+					let semester_r = semester;
+					if (semester == '2')
+						semester_r = '3';
+					let query = `INSERT INTO class (course_number, professor_id, year, semester, class_id, rating) VALUES (?, ?, ?, ?, ?, ?)`;
+					let params = [courseNumber, professorID, Number(year), Number(semester_r), leftpad(class_id), score];
+
+					// console.log(params[0] +'-' + params[2] + '-' + params[3] +'-' + params[4]);
+					await pool.excuteQueryPromise(query, params)
+					.catch(err => {
+						process.exit(1);
+					})
+				}
+			}
+		// break;
+		}
 	}
 	console.log('done');
 }

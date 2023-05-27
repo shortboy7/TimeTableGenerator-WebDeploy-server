@@ -1,3 +1,4 @@
+const { exit } = require("process");
 const pool = require("../general/ConnectionPool.js");
 const fs = require('fs');
 
@@ -122,8 +123,6 @@ function extractObject(filename) {
 			theory: course['이론'],
 			practice: course['실습'],
 			credit: course['학점'],
-			year: 2023,
-			semester: 1,
 			curriculm: course['교과과정'],
 			college: college,
 			department: department,
@@ -140,6 +139,7 @@ function extractObject(filename) {
 				time : times,
 				room : rooms
 			},
+			courseNumber : cNumber,
 		};
 		// 이미 있으면 push 없으면 새로 생성
 		if (!classes.get(cNumber)) classes.set(cNumber, [classInfo]);
@@ -169,14 +169,14 @@ function submitProfessorsEntity(professors)
 function submitCourseEntity(courses)
 {
 	let queryPromises = [];
-	let sql = 'INSERT course (course_number, name, theory, practice, credit, year, semester, curriculum, college, department, major, grade) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+	let sql = 'INSERT course (course_number, name, theory, practice, credit, curriculum, college, department, major, grade) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 	for (let course of courses) {
 		if (course.theory == '') course.theory = 0;
 		if (course.practice == '') course.practice = 0;
 		if (course.department == '') course.department = null;
 		if (course.major == '') course.major = null;
 		if (course.grade == '') course.grade = null;
-		let values = [course.cNumber, course.cName, course.theory, course.practice, course.credit, course.year, course.semester, course.curriculm, course.college, course.department, course.major, course.grade];
+		let values = [course.cNumber, course.cName, course.theory, course.practice, course.credit, course.curriculm, course.college, course.department, course.major, course.grade];
 		queryPromises.push(pool.excuteQueryPromise(sql, values));
 	}
 	return (Promise.allSettled(queryPromises));
@@ -186,19 +186,25 @@ function submitCourseEntity(courses)
 async function submitClassEntity(classes)
 {
 	let queryPromises = [];
+	// let findCourseSQL = 'SELECT course_number FROM course';
+	// let findCourseValues = [];
+	// let course_id = await pool.excuteQueryPromise(findCourseSQL, findCourseValues);
+	// console.log('course id', course_id);
+
 	for (let [key, value] of classes) {
-		let findCourseSQL = 'SELECT course_id FROM course WHERE course_number = ?';
-		let findCourseValues = [key];
-		let course_id = await pool.excuteQueryPromise(findCourseSQL, findCourseValues);
 		for (let classInfo of value) {
 			let findProfessorSQL = 'SELECT professor_id FROM professor WHERE name = ?';
 			let findProfessorValues = [classInfo.professor];
 			let professor_id = await pool.excuteQueryPromise(findProfessorSQL, findProfessorValues);
-			let saveSQL = 'INSERT class (course_id, class_id, rating, capacity, professor_id) VALUES (?, ?, ?, ?, ?)';
-			await pool.excuteQueryPromise(saveSQL, [course_id[0].course_id, classInfo.classId, classInfo.rating, classInfo.capacity, professor_id[0].professor_id]);
-			let scheduleSQL = 'INSERT schedule (class_id, course_id, start_time, day, end_time, classroom, campus ) VALUES (?, ?, ?, ?, ?, ?, ?)';
+
+			let saveSQL = 'INSERT class (course_number, class_id, rating, capacity, professor_id, year, semester) VALUES (?, ?, ?, ?, ?, ?, ?)';
+			let saveClassValues = [key, classInfo.classId, classInfo.rating, classInfo.capacity, professor_id[0].professor_id, 2023, 1];
+			// console.log(key, saveClassValues);
+			await pool.excuteQueryPromise(saveSQL, saveClassValues);
+
+			let scheduleSQL = 'INSERT schedule (class_id, start_time, day, end_time, classroom, campus, course_number, year, semester ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 			for (let i = 0; i < classInfo.schedules.time.length; i++) {
-				let scheduleValues = [classInfo.classId, course_id[0].course_id, classInfo.schedules.time[i].begin, classInfo.schedules.time[i].day, classInfo.schedules.time[i].end, classInfo.schedules.room[i], '서울'];
+				let scheduleValues = [classInfo.classId, classInfo.schedules.time[i].begin, classInfo.schedules.time[i].day, classInfo.schedules.time[i].end, classInfo.schedules.room[i], '서울', key, 2023, 1];
 				queryPromises.push(pool.excuteQueryPromise(scheduleSQL, scheduleValues));
 			}
 		}
