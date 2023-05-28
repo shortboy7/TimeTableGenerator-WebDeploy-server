@@ -98,7 +98,7 @@ class CourseTransformer{
 				Id,
 				row['courseName'],
 				row['professor'],
-				row['rating'],
+				Math.round((row['rating'] - 100) / 20 * 100) / 100,
 				row['credit'],
 				row['theory'],
 				row['practice'],
