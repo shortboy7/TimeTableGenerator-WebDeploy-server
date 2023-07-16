@@ -1,5 +1,5 @@
 const express = require('express');
-const {getData} = require('./parser');
+// const {getData} = require('./parser');
 
 require('dotenv').config({path: '../.env'});
 const app = express();
