@@ -124,5 +124,6 @@ timetable/config/*
 timetable/data/backup
 bot/config.json
 timetable/config/db_config.json
+
 .env
 timetable/data/*
