@@ -74,13 +74,15 @@ function getRoom(course, times) {
 	return rooms;
 }
 
+let debug = 0;
+
 // jsonFile (utf - 8) 에서 데이터를 가져오기
-function extractObject(filename) {
+function extractObject(fileobj) {
 	let professors = new Map();
 	let courses = new Map();
 	let classes = new Map();
 
-	const jsonfile = fs.readFileSync(filename, 'utf8');
+	const jsonfile = fs.readFileSync(fileobj.filename, 'utf8');
 	const coursesFile = JSON.parse(jsonfile);
 	for (let course of coursesFile) {
 		let key = course['학수강좌번호'];
@@ -140,6 +142,8 @@ function extractObject(filename) {
 				room : rooms
 			},
 			courseNumber : cNumber,
+			semester : fileobj.semester,
+			year: fileobj.year
 		};
 		// 이미 있으면 push 없으면 새로 생성
 		if (!classes.get(cNumber)) classes.set(cNumber, [classInfo]);
@@ -158,10 +162,17 @@ function extractObject(filename) {
 function submitProfessorsEntity(professors)
 {
 	let queryPromises = [];
+	let findsql = "SELECT * FROM professor WHERE name = ?";
 	let sql = "INSERT professor (name, major) VALUES (?, ?)";
+	debug = 0;
 	for (let professor of professors) {
-		let values = [professor.name, professor.major];
-		queryPromises.push(pool.excuteQueryPromise(sql, values));
+		let findValue = [professor.name];
+		pool.excuteQueryPromise(findsql, findValue).then((result) => {
+			if (result[0].length == 0) {
+                let values = [professor.name, professor.major];
+                queryPromises.push(pool.excuteQueryPromise(sql, values));
+            }
+		});
 	}
 	return (Promise.allSettled(queryPromises));
 }
@@ -186,25 +197,25 @@ function submitCourseEntity(courses)
 async function submitClassEntity(classes)
 {
 	let queryPromises = [];
-	// let findCourseSQL = 'SELECT course_number FROM course';
-	// let findCourseValues = [];
-	// let course_id = await pool.excuteQueryPromise(findCourseSQL, findCourseValues);
-	// console.log('course id', course_id);
 
 	for (let [key, value] of classes) {
 		for (let classInfo of value) {
-			let findProfessorSQL = 'SELECT professor_id FROM professor WHERE name = ?';
-			let findProfessorValues = [classInfo.professor];
-			let professor_id = await pool.excuteQueryPromise(findProfessorSQL, findProfessorValues);
-
-			let saveSQL = 'INSERT class (course_number, class_id, rating, capacity, professor_id, year, semester) VALUES (?, ?, ?, ?, ?, ?, ?)';
-			let saveClassValues = [key, classInfo.classId, classInfo.rating, classInfo.capacity, professor_id[0].professor_id, 2023, 1];
-			// console.log(key, saveClassValues);
-			await pool.excuteQueryPromise(saveSQL, saveClassValues);
-
+			let findClassSQL = 'SELECT class_id FROM class WHERE course_number =? AND class_id = ? and year = ? and semester = ?';
+			let findClassValues = [key, classInfo.classId, classInfo.year, classInfo.semester];
+			let already_class = await pool.excuteQueryPromise(findClassSQL, findClassValues);
+			if (already_class[0].length == 0)
+			{
+				let findProfessorSQL = 'SELECT professor_id FROM professor WHERE name = ?';
+				let findProfessorValues = [classInfo.professor];
+				let professor_id = await pool.excuteQueryPromise(findProfessorSQL, findProfessorValues);
+				let saveSQL = 'INSERT class (course_number, class_id, rating, capacity, professor_id, year, semester) VALUES (?, ?, ?, ?, ?, ?, ?)';
+				let saveClassValues = [key, classInfo.classId, classInfo.rating, classInfo.capacity, professor_id[0][0].professor_id, classInfo.year, classInfo.semester];
+				await pool.excuteQueryPromise(saveSQL, saveClassValues);
+			}
+			
 			let scheduleSQL = 'INSERT schedule (class_id, start_time, day, end_time, classroom, campus, course_number, year, semester ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 			for (let i = 0; i < classInfo.schedules.time.length; i++) {
-				let scheduleValues = [classInfo.classId, classInfo.schedules.time[i].begin, classInfo.schedules.time[i].day, classInfo.schedules.time[i].end, classInfo.schedules.room[i], '서울', key, 2023, 1];
+				let scheduleValues = [classInfo.classId, classInfo.schedules.time[i].begin, classInfo.schedules.time[i].day, classInfo.schedules.time[i].end, classInfo.schedules.room[i], '서울', key, classInfo.year, classInfo.semester];
 				queryPromises.push(pool.excuteQueryPromise(scheduleSQL, scheduleValues));
 			}
 		}
@@ -212,18 +223,58 @@ async function submitClassEntity(classes)
 	return (Promise.allSettled(queryPromises));
 }
 
-async function main(){
-	try{
-	let [professors, courses, classes] = extractObject('202301.json');
-		let result = await submitProfessorsEntity(professors.values());
-		console.log(result.filter((e)=>e.status == 'fulfilled').length);
-		result = await submitCourseEntity(courses.values());
-		console.log(result.filter((e)=>e.status == 'fulfilled').length);
-		result = await submitClassEntity(classes);
-		console.log(result.filter((e)=>e.status == 'fulfilled').length);
-	}catch(err)
-	{
-		console.log(err);
-	}
+function parseFilename(filename) {
+	let year = parseInt(filename.substring(0, 4));
+	let semester = parseInt(filename[5]);
+	return {
+		'filename': './json/' + filename,
+		'year': year,
+        'semester': semester
+	};
 }
-main();
+
+// TODO: ignore backup if target is given
+async function main(backup=false, target=null){
+	let filenames = [];
+	let fileobjs = [];
+    if (backup == true) {
+        filenames = fs.readdirSync('./json/');
+    } else {
+		if (target != NULL)
+			return (NULL);
+		filenames.append(target);
+    }
+
+	for (let filename of filenames) {
+		fileobjs.push(parseFilename(filename));
+	}
+	for (let fileobj of fileobjs) {
+		try{
+            let [professors, courses, classes] = extractObject(fileobj);
+            let result = await submitProfessorsEntity(professors.values());
+            console.log(result.filter((e)=>e.status == 'fulfilled').length);
+            result = await submitCourseEntity(courses.values());
+            console.log(result.filter((e)=>e.status == 'fulfilled').length);
+            result = await submitClassEntity(classes);
+            console.log(result.filter((e)=>e.status == 'fulfilled').length);
+        }catch(err)
+        {
+            console.log(err);
+        }
+	}
+	// for (let i = 0; i < filenames.length; i++) {
+	// 	try{
+	// 		let [professors, courses, classes] = extractObject(filenames[i]);
+	// 		let result = await submitProfessorsEntity(professors.values());
+	// 		console.log(result.filter((e)=>e.status == 'fulfilled').length);
+	// 		result = await submitCourseEntity(courses.values());
+	// 		console.log(result.filter((e)=>e.status == 'fulfilled').length);
+	// 		result = await submitClassEntity(classes);
+	// 		console.log(result.filter((e)=>e.status == 'fulfilled').length);
+	// 	}catch(err)
+	// 	{
+	// 		console.log(err);
+	// 	}	
+	// }	
+}
+main(true, null);

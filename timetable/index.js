@@ -16,9 +16,9 @@ const corsHandler = (req, res, next) => {
 	next();
 };
 
+app.use(corsHandler);
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-app.use(corsHandler);
 
 app.use('/course', courseRouter);
 

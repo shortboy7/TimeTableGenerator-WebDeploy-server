@@ -120,9 +120,9 @@ dist
 
 #보안관련해서..
 package-lock.json
-
-data/backup
+timetable/config/*
+timetable/data/backup
 bot/config.json
 timetable/config/db_config.json
 .env
-data/*
+timetable/data/*

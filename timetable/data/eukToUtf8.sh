@@ -5,7 +5,7 @@ FROM_ENCODING="EUC-KR"
 TO_ENCODING="UTF-8"
 
 # Define the directory to convert files in
-FILENAME="202301.csv"
+FILENAME="202302.csv"
 
 # convert
 if [[ -f "$FILENAME" ]]; then

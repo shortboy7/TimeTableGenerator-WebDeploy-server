@@ -1,13 +1,14 @@
 const { json } = require('express');
 const fs = require('fs');
-const dataDir = './timetable/data/major/'
-
+const dataDir = './data/'
 
 function csvToJson(fileString) {
 	let jsonArray = [];
 	const rows = fileString.split("\n");
 	const header = rows[0].split(",");
+	
 	for(let i = 1 ; i < rows.length; i++) {
+	
 		let obj = {};
 		let j = 0;
 		let left = 0, right = 0;
@@ -54,9 +55,13 @@ function getTime(strs) {
 	return obj;
 }
 
+debug = 0;
+
 function readPromise(filename) {
 	return new Promise((resolve, reject) => {
 		fs.readFile(dataDir+filename, 'utf8', (err, data) => {
+			
+			console.log(dataDir + filename);
 			if (err) {
 				console.log(err);
 				reject(err.message);
@@ -66,9 +71,23 @@ function readPromise(filename) {
 				reject('no data');
 				return ;
 			}
+			
+			console.log("debug", debug++);
+
 			let courses = [];
 			raw = csvToJson(data);
-			raw.forEach((row) => {
+			raw.forEach((row) => {				
+				// console.log("debug", debug++);
+				console.log(row);
+				/**
+				 * CourseId : 학수강좌번호
+				 * Curriculum : 교과과정
+				 * Name : 교과목명
+				 * Professor : 교원명
+				 * LectureTime : 요일/시간
+				 * LectureRoom : 강의실
+				 * Credit : 학점
+				 */
 				let id = row['CourseId'].split("-");
 				let times = row['LectureTime'].split(",");
 				let rooms = row['LectureRoom'].split(",");
@@ -145,6 +164,15 @@ function getData(major = undefined)
 	return promises;
 }
 
-module.exports = {
-	getData
-}
+readPromise('202302.csv').then((data)=>{
+	console.log(data);
+	fs.writeFile('test.json', JSON.stringify(data), (err) => {
+		console.log(err);
+	});
+}).catch((err)=>{
+	console.log(err);
+});
+
+// module.exports = {
+// 	getData
+// }
