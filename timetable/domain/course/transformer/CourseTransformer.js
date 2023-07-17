@@ -93,6 +93,8 @@ class CourseTransformer{
 			if (m.has(`${row['courseNumber']}-${row['classId']}`))
 				continue;
 			let Grades = this._getGrades(row['grade']);
+			if (row['rating'] == 0 || row['rating'] == undefined || row['rating'] == null)
+				row['rating'] = 100;
 			let courseDTO = new CourseDTO(
 				Grades,
 				row['curriculum'],
