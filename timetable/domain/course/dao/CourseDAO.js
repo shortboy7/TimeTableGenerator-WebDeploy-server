@@ -44,7 +44,7 @@ class CourseDAO{
 		sql += ' FROM course JOIN class ON course.course_number = class.course_number';
 		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.year = schedule.year AND class.semester = schedule.semester AND class.course_number = schedule.course_number';
 		sql += ' JOIN professor ON class.professor_id = professor.professor_id';
-		sql += ' JOIN RatingTab ON course.course_number = RatingTab.courseNumber AND class.professor_id = RatingTab.pid'
+		sql += ' LEFT JOIN RatingTab ON course.course_number = RatingTab.courseNumber AND class.professor_id = RatingTab.pid'
 		sql += ' WHERE class.year = ? AND class.semester = ?';
 		let params = [year, year, semester, year, semester];
 		return pool.excuteQueryPromise(sql, params);
@@ -57,7 +57,7 @@ class CourseDAO{
 		sql += ' FROM course JOIN class ON course.course_number = class.course_number';
 		sql += ' JOIN schedule ON class.class_id = schedule.class_id AND class.year = schedule.year AND class.semester = schedule.semester AND class.course_number = schedule.course_number';
 		sql += ' JOIN professor ON class.professor_id = professor.professor_id';
-		sql += ' JOIN RatingTab ON course.course_number = RatingTab.courseNumber AND class.professor_id = RatingTab.pid'
+		sql += ' LEFT JOIN RatingTab ON course.course_number = RatingTab.courseNumber AND class.professor_id = RatingTab.pid'
 		sql += ' WHERE curriculum = ? AND class.year = ? AND class.semester = ?';
 		let params = [year, year, semester, curriculum, year, semester];
 		return pool.excuteQueryPromise(sql, params);

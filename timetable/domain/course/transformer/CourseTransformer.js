@@ -2,6 +2,7 @@ const CourseDTO = require('../DTO/courseDTO.js');
 
 class CourseTransformer{
 	 _getPreviousSentence(text, word) {
+		if (text == null) return null;
 		const index = text.indexOf(word);
 
 		if (index !== -1) {

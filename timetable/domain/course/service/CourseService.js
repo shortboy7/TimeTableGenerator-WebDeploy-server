@@ -18,7 +18,7 @@ class CourseService{
 	getAllCourse(year, semester){
 		return new Promise((resolve, reject)=>{
 			this.courseDao.findByYearAndSemester(year, semester).then((rows)=>{
-				console.log(rows);
+				
 				let dtos = this.courseTransformer.rowsToDTO(rows[0]);
 				resolve(dtos);
 			})
