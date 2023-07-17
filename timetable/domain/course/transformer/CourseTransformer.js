@@ -68,7 +68,7 @@ class CourseTransformer{
 			return [1,2,3,4,5,6];
 		let pure = this._getPreviousSentence(grades, "학년");
 		if (pure === null)
-			return null;
+			return n_grades;
 		let hyphen = /-/;
 		if (hyphen.test(pure)) {
 			let [start, end] = pure.split('-');
@@ -99,7 +99,7 @@ class CourseTransformer{
 				Id,
 				row['courseName'],
 				row['professor'],
-				Math.round((row['rating'] - 100) / 20 * 100) / 100,
+				Math.round((row['rating'] / 20 * 100) / 100),
 				row['credit'],
 				row['theory'],
 				row['practice'],
