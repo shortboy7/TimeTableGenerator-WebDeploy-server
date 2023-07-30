@@ -1,9 +1,12 @@
-const express = require('express');
+const	express = require('express');
+const	authRouter = require('../../user/controller/VerifyTokenRouter');
 let router = express.Router();
 let courseService = require('../service/CourseService');
 /**
  * for course
  */
+router.use(authRouter);
+
 router.get('/major', async(req, res)=>{
 	let major = req.query.major;
 	let semester = Number(req.query.semester);

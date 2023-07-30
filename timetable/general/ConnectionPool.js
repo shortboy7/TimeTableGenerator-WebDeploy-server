@@ -1,5 +1,5 @@
 const mysql = require('mysql2/promise');
-// const db_config = require('../config/db_config.json');
+// const db_config = require('../config/db_config_local.json');
 require('dotenv').config({path: '../../env'});
 
 const pool = mysql.createPool({
@@ -21,38 +21,5 @@ const pool = mysql.createPool({
 module.exports = {
 	excuteQueryPromise: function(sql, params) {
 		return pool.query(sql, params);
-		return pool.getConnection((err, connection) => {
-			if (err) {
-				console.log('connection err', err);
-				pool.releaseConnection(connection);
-				reject(err);
-			}
-			connection.query(sql, params, (err, rows)=>{
-				if (err) {
-					console.log('query err', err);
-					reject(err);
-				}
-				resolve(rows);
-			});
-			pool.releaseConnection(connection);
-		});
-
-		return new Promise((resolve, reject) => {
-			pool.getConnection((err, connection) => {
-				if (err) {
-					console.log('connection err', err);
-					pool.releaseConnection(connection);
-					reject(err);
-				}
-				connection.query(sql, params, (err, rows)=>{
-					if (err) {
-						console.log('query err', err);
-						reject(err);
-					}
-					resolve(rows);
-				});
-				pool.releaseConnection(connection);
-			});
-		});
 	}
 };

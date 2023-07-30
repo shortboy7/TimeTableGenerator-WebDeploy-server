@@ -50,6 +50,7 @@ async function enrollRating(filename)
 		for (let row of rows[0]) {
 			dbCourse.set(row['course_number'], true);
 		}
+		console.log(rows[0].length);
 	})
 
 	let dbProfessor = new Map();
@@ -80,8 +81,8 @@ async function enrollRating(filename)
 
 					// professor가 처음 보는 교수인 경우
 					if (professorID === undefined) {
-						console.log(professorName);
-						await pool.excuteQueryPromise(`INSERT INTO professor (name) VALUES (?)`, [professorName])
+						// console.log(professorName);
+						await pool.excuteQueryPromise(`INSERT INTO professor (name, major) VALUES (?, "")`, [professorName])
 						await pool.excuteQueryPromise(`SELECT professor_id FROM professor WHERE name = ?`, [professorName])
 						.then((rows) => {
 							professorID = rows[0][0]['professor_id'];
@@ -89,21 +90,26 @@ async function enrollRating(filename)
 							// console.log(professorID);
 						});
 					}
-
-					// course가 처음 보는 과목인 경우
-					// console.log(courseNumber);
-
 					let semester_r = semester;
 					if (semester == '2')
 						semester_r = '3';
-					let query = `INSERT INTO class (course_number, professor_id, year, semester, class_id, rating) VALUES (?, ?, ?, ?, ?, ?)`;
-					let params = [courseNumber, professorID, Number(year), Number(semester_r), leftpad(class_id), score];
+					// course가 처음 보는 과목인 경우
+					// console.log(courseNumber);
+					let findResult = await pool.excuteQueryPromise(`SELECT * FROM class WHERE course_number = ? AND class_id = ? AND year = ? AND semester = ?`, [courseNumber, leftpad(class_id), Number(year), Number(semester_r)])
+					// console.log(findResult[0]);
+					if (findResult[0].length == 0) {
+						
+						let query = `INSERT INTO class (course_number, professor_id, year, semester, class_id, rating, capacity) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+						let params = [courseNumber, professorID, Number(year), Number(semester_r), leftpad(class_id), score, 0];
 
-					// console.log(params[0] +'-' + params[2] + '-' + params[3] +'-' + params[4]);
-					await pool.excuteQueryPromise(query, params)
-					.catch(err => {
-						process.exit(1);
-					})
+						// console.log(params[0] +'-' + params[2] + '-' + params[3] +'-' + params[4]);
+						await pool.excuteQueryPromise(query, params)
+						.catch(err => {
+							console.log(err);
+							process.exit(1);
+						})
+					}
+					
 				}
 			}
 		// break;

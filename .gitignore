@@ -127,3 +127,5 @@ timetable/config/db_config.json
 
 .env
 timetable/data/*
+
+test/*
