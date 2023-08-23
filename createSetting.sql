@@ -63,3 +63,19 @@ create table if not exists schedule
 create index course_number
     on schedule (course_number, class_id, year, semester);
 
+create table if not exists student
+(
+    sid         varchar(32)     not null primary key ,
+    e_mail      varchar(64)     not null unique,
+    name        varchar(64)     not null,
+    password    varchar(256)    not null,
+    major       varchar(64)     not null
+);
+
+create table if not exists student_refresh
+(
+    sid         varchar(32)    not null primary key ,
+    refresh_key varchar(512)   not null,
+
+    foreign key (sid) REFERENCES student (sid)
+);
